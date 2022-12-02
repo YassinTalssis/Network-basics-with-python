@@ -34,8 +34,8 @@ def service_connection(key, mask):
             data.outb += recv_data #Add received data to data that we'll send it later
         else:
             print(f"Closing connection to {data.addr}")
-            sel.unregister(sock)
-            sock.close()
+            sel.unregister(sock) #remove socket from the queue 
+            sock.close() #close connection
     if mask & selectors.EVENT_WRITE:
         if data.outb:
             print(f"Echoing {data.outb!r} to {data.addr}")
@@ -43,14 +43,14 @@ def service_connection(key, mask):
             data.outb = data.outb[sent:]
 
 
-lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-lsock.bind((host, port))
-lsock.listen()
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind((host, port))
+server.listen()
 print(f"Listening on {(host, port)}")
 #sockets are no  blocked
-lsock.setblocking(False)
+server.setblocking(False)
 #registers the socket to be monitored with sel.select()
-sel.register(lsock, selectors.EVENT_READ, data=None)
+sel.register(server, selectors.EVENT_READ, data=None)
 
 try:
     while True:
